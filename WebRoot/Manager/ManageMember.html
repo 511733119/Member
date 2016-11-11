@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<meta charset="UTF-8">
+<title>主页</title>
+<script src="eui/jquery.min.js"></script>
+<script src="eui/jquery.easyui.min.js"></script>
+<link rel="stylesheet" href="eui/themes/icon.css">
+<link rel="stylesheet" href="eui/themes/default/easyui.css">
+<style type="text/css">
+#fm {
+	margin: 0;
+	padding: 10px 30px;
+}
+
+.ftitle {
+	font-size: 14px;
+	font-weight: bold;
+	padding: 5px 0;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+}
+
+.fitem {
+	margin-bottom: 5px;
+}
+
+.fitem label {
+	display: inline-block;
+	width: 80px;
+}
+
+.fitem input {
+	width: 160px;
+}
+</style>
+<script>
+	$(function() {
+		$('#dg')
+				.datagrid(
+						{
+							title : '会员管理',
+							iconCls : 'icon-edit',
+							width : 960,
+							height : 450,
+							singleSelect : true,
+							idField : 'usernumber',
+							url : 'displayAllMemberAction',
+							columns : [ [
+									{
+										field : 'usernumber',
+										title : '会员编号',
+										width : 60
+									},
+									{
+										field : 'username',
+										title : '用户名',
+										width : 100
+									},
+									{
+										field : 'GroupNumber',
+										title : '会员组编号',
+										width : 80,
+										align : 'left',
+										editor : {
+											type : 'combobox',
+											options : {
+												valueField : 'id',
+												textField : 'id',
+												url : 'data.json',
+												required : true
+											}
+										}
+									},
+									{
+										field : 'action',
+										title : '操作',
+										width : 70,
+										align : 'center',
+										formatter : function(value, row, index) {
+											if (row.editing) {
+												var s = '<a href="#" onclick="saverow(this)">Save</a> ';
+												var c = '<a href="#" onclick="cancelrow(this)">Cancel</a>';
+												return s + c;
+											} else {
+												var e = '<a href="#" onclick="editrow(this)">Edit</a> ';
+												var d = '';
+												return e + d;
+											}
+										}
+									} ] ],
+							onBeforeEdit : function(index, row) {
+								row.editing = true;
+								updateActions(index);
+							},
+							onAfterEdit : function(index, row) {
+								row.editing = false;
+								updateActions(index);
+							},
+							onCancelEdit : function(index, row) {
+								row.editing = false;
+								updateActions(index);
+							}
+						});
+	});
+
+	function updateActions(index) {
+		$('#dg').datagrid('updateRow', {
+			index : index,
+			row : {}
+		});
+	}
+
+	function getRowIndex(target) {
+		var tr = $(target).closest('tr.datagrid-row');
+		return parseInt(tr.attr('datagrid-row-index'));
+	}
+
+	function editrow(target) {
+		$('#dg').datagrid('beginEdit', getRowIndex(target));
+	}
+
+	function saverow(target) {
+		$('#dg').datagrid('endEdit', getRowIndex(target));
+		var row = $('#dg').datagrid('getSelected');
+		$.post("updateNumberAction", {
+			"usernumber" : row.usernumber,
+			"GroupNumber" : row.GroupNumber,
+			"username" : row.username
+		}, function(res) {
+
+			if (res.success) {
+				$.messager.show({
+					Title : '成功',
+					msg : '成功修改'
+				})
+			} else {
+				$.messager.show({
+					Title : '错误',
+					msg : res.errorMsg
+				})
+			}
+		}, 'json');
+	}
+
+	function cancelrow(target) {
+		$('#dg').datagrid('cancelEdit', getRowIndex(target));
+	}
+</script>
+</head>
+<body>
+	<table id="dg" class="easyui-datagrid"
+		style="width: 100%; height: 100%"
+		data-options="rownumbers:true,singleSelect:true,pagination:true"
+		url="displayAllMemberAction" toolbar="#toolbar" rownumbers="true"
+		fitColumns="true" singleSelect="true">
+	</table>
+
+</body>
+</html>

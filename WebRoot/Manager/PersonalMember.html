@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<meta charset="UTF-8">
+<title>主页</title>
+<script src="eui/jquery.min.js"></script>
+<script src="eui/jquery.easyui.min.js"></script>
+<link rel="stylesheet" href="eui/themes/icon.css">
+<link rel="stylesheet" href="eui/themes/default/easyui.css">
+<style type="text/css">
+#fm {
+	margin: 0;
+	padding: 10px 30px;
+}
+
+.ftitle {
+	font-size: 14px;
+	font-weight: bold;
+	padding: 5px 0;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+}
+
+.fitem {
+	margin-bottom: 5px;
+}
+
+.fitem label {
+	display: inline-block;
+	width: 80px;
+}
+
+.fitem input {
+	width: 160px;
+}
+</style>
+<script>
+	var url;
+	//点击添加用户弹出菜单
+	function newMember() {
+		$("#dlg").dialog('open').dialog('setTitle', '添加会员');
+		$("#fm").form('clear');
+		url = "addPersonalMemberAction"
+	}
+
+	function destroyMember() {
+		var usernumbers = new Array();
+		var rows = $("#dg").datagrid('getSelections');
+
+		if (rows) {
+			for (var i = 0; i < rows.length; i++) {
+				usernumbers.push(rows[i].usernumber);
+			}
+			var j = usernumbers.toString();
+			$.messager.confirm('确定', '确定删除选中的会员？', function(r) {
+				if (r) {
+					$.post("deleteMemberAction", {
+						"usernumbers" : j
+					}, function(result) {
+						if (result.success) {
+							$("#dg").datagrid('reload');
+						} else {
+							$.messager.show({
+								Title : '错误',
+								msg : result.errorMsg
+							})
+						}
+					}, 'json');
+				}
+			})
+		}
+	}
+
+	function editMember2() {
+		var row = $('#dg').datagrid('getSelected');
+		if (row) {
+			$('#dlg2').dialog('open').dialog('setTitle', '编辑');
+			$('#update').form('load', row);
+			url = 'updateMemberAction?usernumber=' + row.usernumber;
+		}
+	}
+
+	function saveMember2() {
+		$('#update').form('submit', {
+			url : url,
+			onSubmit : function() {
+				return $(this).form('validate');
+			},
+			success : function(result) {
+				var result = eval('(' + result + ')');
+				if (result.errorMsg) {
+					$.messager.show({
+						title : 'Error',
+						msg : result.errorMsg
+					});
+				} else {
+					$('#dlg2').dialog('close'); // close the dialog
+					$('#dg').datagrid('reload'); // reload the user data
+				}
+			}
+		});
+	}
+
+	//对话框OK选项
+
+	function saveMember() {
+		$('#fm').form('submit', {
+			url : url,
+			onSubmit : function() {
+				return $(this).form('validate');
+			},
+			success : function(result) {
+				var result = eval('(' + result + ')');
+				if (result.errorMsg) {
+					$.messager.show({
+						title : 'Error',
+						msg : result.errorMsg
+					});
+				} else {
+					$('#dlg').dialog('close'); // close the dialog
+					$('#dg').datagrid('reload'); // reload the user data
+				}
+			}
+		});
+	}
+
+	function doSearch() {
+		$('#dg').datagrid('load', {
+			user : $('#user').val()
+		});
+	}
+</script>
+</head>
+<body>
+	<table id="dg" title="会员管理菜单" class="easyui-datagrid"
+		style="width:100%;height:70%"
+		data-options="rownumbers:true,singleSelect:false,pagination:true"
+		url="displayPersonalMemberAction" toolbar="#toolbar" rownumbers="true"
+		fitColumns="true" singleSelect="false">
+		<thead>
+			<tr>
+				<th field="usernumber" width="50">会员编号</th>
+				<th field="username" width="50">用户名</th>
+				<th field="email" width="50">电子邮件</th>
+				<th field="question" width="50">安全问题</th>
+				<th field="answer" width="50">答案</th>
+				<th field="safecode" width="50">安全码</th>
+			</tr>
+		</thead>
+	</table>
+	<div id="toolbar">
+		<a href="javascript:void(0)" class="easyui-linkbutton"
+			iconCls="icon-add" plain="true" onclick="newMember()">添加会员</a> <a
+			href="javascript:void(0)" class="easyui-linkbutton"
+			iconCls="icon-edit" plain="true" onclick="editMember2()">编辑</a> <a
+			href="javascript:void(0)" class="easyui-linkbutton"
+			iconCls="icon-remove" plain="true" onclick="destroyMember()">删除会员</a>
+		<span>用户名</span> <input id="user" name="user"
+			style="line-height:20px;border:1px solid #ccc"> <a href="#"
+			class="easyui-linkbutton" plain="true" onclick="doSearch()">Search</a>
+	</div>
+	<div id="dlg" class="easyui-dialog"
+		style="width:400px;height:280px;padding:10px 20px" closed="true"
+		buttons="#dlg-buttons">
+		<div class="ftitle">会员信息</div>
+		<form id="fm" method="post" ENCTYPE="multipart/form-data" novalidate>
+			<div class="fitem">
+				<label>用户名</label> <input type="text" name="username"
+					class="easyui-validate">
+			</div>
+			<div class="fitem">
+				<label>密码</label> <input type="password" name="password"
+					class="easyui-validate">
+			</div>
+
+			<div class="fitem">
+				<label>安全问题</label> <select name="question" id="question"
+					class="easyui-according">
+					<option value="你的母亲是？">你的母亲是？</option>
+					<option value="你的父亲是?">你的父亲是?</option>
+					<option value="你的生日是几号?">你的生日是几号?</option>
+				</select>
+			</div>
+			<div class="fitem">
+				<label>答案</label> <input type="text" name="answer"
+					class="easyui-validate">
+			</div>
+			<div class="fitem">
+				<label>安全码</label> <input type="text" name="safecode"
+					class="easyui-validate">
+			</div>
+			<div class="fitem">
+				<label>头像地址</label> <input name="img" class="easyui-filebox">
+			</div>
+			<div class="fitem">
+				<label>邮箱</label> <input type="text" name="email"
+					class="easyui-validate">
+			</div>
+
+		</form>
+
+	</div>
+	<div id="dlg2" class="easyui-dialog"
+		style="width:400px;height:280px;padding:10px 20px" closed="true"
+		buttons="#dlg-buttons2">
+		<div class="ftitle">会员信息</div>
+		<form id="update" method="post" novalidate>
+			<div class="fitem">
+				<label>用户名</label> <input type="text" name="username"
+					class="easyui-validate" disabled=true>
+			</div>
+			<div class="fitem">
+				<label>安全问题</label> <input type="text" name="question"
+					class="easyui-validate">
+			</div>
+			<div class="fitem">
+				<label>答案</label> <input type="text" name="answer"
+					class="easyui-validate">
+			</div>
+			<div class="fitem">
+				<label>安全码</label> <input type="text" name="safecode"
+					class="easyui-validate">
+			</div>
+
+		</form>
+
+	</div>
+	<div id="dlg-buttons">
+		<a href="#" class="easyui-linkbutton" iconCls="icon-ok"
+			onclick="saveMember()">保存</a> <a href="#" class="easyui-linkbutton"
+			iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')">取消</a>
+	</div>
+	<div id="dlg-buttons2">
+		<a href="#" class="easyui-linkbutton" iconCls="icon-ok"
+			onclick="saveMember2()">保存</a> <a href="#" class="easyui-linkbutton"
+			iconCls="icon-cancel" onclick="javascript:$('#dlg2').dialog('close')">取消</a>
+	</div>
+
+
+</body>
+</html>

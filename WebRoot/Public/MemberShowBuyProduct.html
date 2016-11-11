@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<meta charset="UTF-8">
+<title>主页</title>
+<script src="eui/jquery.min.js"></script>
+<script src="eui/jquery.easyui.min.js"></script>
+<link rel="stylesheet" href="eui/themes/icon.css">
+<link rel="stylesheet" href="eui/themes/default/easyui.css">
+</head>
+<style type="text/css">
+#fm {
+	margin: 0;
+	padding: 10px 30px;
+}
+
+.ftitle {
+	font-size: 14px;
+	font-weight: bold;
+	padding: 5px 0;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+}
+
+.fitem {
+	margin-bottom: 5px;
+}
+
+.fitem label {
+	display: inline-block;
+	width: 80px;
+}
+
+.fitem input {
+	width: 160px;
+}
+</style>
+<body>
+	<table id="dg" title="交易明细" class="easyui-datagrid"
+		style="width: 100%; height: 100%"
+		data-options="rownumbers:true,singleSelect:true,pagination:true"
+		url="displayMemberBuyProductAction" rownumbers="true"
+		fitColumns="true" singleSelect="false">
+		<thead>
+			<tr>
+				<th field="ProductID" width="22">产品编号</th>
+				<th field="Version" width="22">产品版本</th>
+				<th field="PType" width="22">产品类型</th>
+				<th field="Content" width="50">产品描述</th>
+				<th field="bound" width="22">所需积分</th>
+			</tr>
+		</thead>
+	</table>
+	<div id="dlg" class="easyui-dialog"
+		style="width: 400px; height: 280px; padding: 10px 20px" closed="true"">
+
+	</div>
+</body>
+</html>

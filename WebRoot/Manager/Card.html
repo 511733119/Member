@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<meta charset="UTF-8">
+<title>主页</title>
+<script src="eui/jquery.min.js"></script>
+<script src="eui/jquery.easyui.min.js"></script>
+<script src="eui/easyui-lang-zh_CN.js"></script>
+<link rel="stylesheet" href="eui/themes/icon.css">
+<link rel="stylesheet" href="eui/themes/default/easyui.css">
+<style type="text/css">
+#fm {
+	margin: 0;
+	padding: 10px 30px;
+}
+
+.ftitle {
+	font-size: 14px;
+	font-weight: bold;
+	padding: 5px 0;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+}
+
+.fitem {
+	margin-bottom: 5px;
+}
+
+.fitem label {
+	display: inline-block;
+	width: 80px;
+}
+
+.fitem input {
+	width: 160px;
+}
+</style>
+<script>
+	var url;
+	//点击添加商品弹出菜单
+	function newCard() {
+		$("#dlg").dialog('open').dialog('setTitle', '添加点卡');
+		$("#fm").form('clear');
+		url = "addCardAction"
+	}
+
+	//对话框OK选项
+
+	function saveCard() {
+		$('#fm').form('submit', {
+			url : url,
+			onSubmit : function() {
+				return $(this).form('validate');
+			},
+			success : function(result) {
+				var result = eval('(' + result + ')');
+				if (result.errorMsg) {
+					$.messager.show({
+						title : 'Error',
+						msg : result.errorMsg
+					});
+				} else {
+					$('#dlg').dialog('close'); // close the dialog
+					$('#dg').datagrid('reload'); // reload the user data
+				}
+			}
+		});
+	}
+
+	function editCard() {
+		var row = $('#dg').datagrid('getSelected');
+		if (row) {
+			$('#dlg').dialog('open').dialog('setTitle', '编辑点卡');
+			$('#fm').form('load', row);
+			url = 'updateCardAction?id=' + row.CardID;
+		}
+	}
+
+	function destroyCard() {
+		var ids = [];
+		var rows = $("#dg").datagrid('getSelections');
+		for (var i = 0; i < rows.length; i++) {
+			ids.push(rows[i].CardID);
+		}
+		var ids = ids.toString();
+		if (rows) {
+			$.messager.confirm('确定', '确定删除这个点卡？', function(r) {
+				if (r) {
+					$.post('deleteCardAction', {
+						ids : ids
+					}, function(result) {
+						if (result.success) {
+							$("#dg").datagrid('reload');
+						} else {
+							$.messager.show({
+								Title : '错误',
+								msg : result.errorMsg
+							})
+						}
+					}, 'json');
+				}
+			})
+		}
+	}
+</script>
+</head>
+<body>
+	<table id="dg" title="点卡管理菜单" class="easyui-datagrid"
+		style="width: 100%; height: 100%"
+		data-options="rownumbers:true,singleSelect:true,pagination:true"
+		url="displayCardAction" toolbar="#toolbar" rownumbers="true"
+		fitColumns="true" singleSelect="false">
+		<thead>
+			<tr>
+				<th field="CardNumber" width="22">卡号</th>
+				<th field="CardPassword" width="22">密码</th>
+				<th field="Point" width="25">点数</th>
+				<th field="TimeOutDate" width="25">过期时间</th>
+				<th field="isUse" width="25">使用状态</th>
+			</tr>
+		</thead>
+	</table>
+	<div id="toolbar">
+		<a href="javascript:void(0)" class="easyui-linkbutton"
+			iconCls="icon-add" plain="true" onclick="newCard()">添加点卡</a> <a
+			href="javascript:void(0)" class="easyui-linkbutton"
+			iconCls="icon-edit" plain="true" onclick="editCard()">编辑</a> <a
+			href="javascript:void(0)" class="easyui-linkbutton"
+			iconCls="icon-remove" plain="true" onclick="destroyCard()">删除</a>
+	</div>
+	<div id="dlg" class="easyui-dialog"
+		style="width: 400px; height: 280px; padding: 10px 20px" closed="true"
+		buttons="#dlg-buttons">
+		<div class="ftitle">点卡信息</div>
+		<form id="fm" method="post" novalidate>
+
+			<div class="fitem">
+				<label>点卡号</label> <input type="text" name="CardNumber"
+					class="easyui-validate">
+			</div>
+
+			<div class="fitem">
+				<label>点卡密码</label> <input type="text" name="CardPassword"
+					class="easyui-validate">
+			</div>
+
+			<div class="fitem">
+				<label>点数</label> <input type="text" name="Point"
+					class="easyui-validate">
+			</div>
+
+			<div class="fitem">
+				<label>过期时间</label> <input class="easyui-datetimebox"
+					name="TimeOutDate" />
+			</div>
+
+		</form>
+	</div>
+	<div id="dlg-buttons">
+		<a href="#" class="easyui-linkbutton" iconCls="icon-ok"
+			onclick="saveCard()">保存</a> <a href="#" class="easyui-linkbutton"
+			iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')">取消</a>
+	</div>
+
+
+</body>
+</html>

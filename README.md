@@ -6,9 +6,9 @@ Member是一个会员管理系统，为企业在自己的网站上吸引、管�
 -----
 ### 主要技术
   
-JSP，Servlet，Java Bean，JDBC
-界面：JQuery ,EasyUI
-数据库：MySQL  
+JSP，Servlet，Java Bean，JDBC    
+前端：JQuery,EasyUI    
+数据库：MySQL    
 
 -----
 ### 功能  
@@ -40,7 +40,5 @@ JSP，Servlet，Java Bean，JDBC
 
 ###总结与收获
 通过在短短一周实训时间开发完成了该项目，提高了通过搜索快速解决问题的能力，掌握了使用Java技术进行web开发的知识。
-=======
-# Member
-基于Jsp+Servlet+MySQL的会员管理系统
+
 

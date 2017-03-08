@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 ## Member
 
 Member是一个会员管理系统，为企业在自己的网站上吸引、管理自己的客户资源以及注册会员而开发，以此使企业与自己的用户建立良好的沟通与互动。
@@ -43,4 +43,4 @@ JSP，Servlet，Java Bean，JDBC
 =======
 # Member
 基于Jsp+Servlet+MySQL的会员管理系统
->>>>>>> f072537d2384fe6fcab4e2b0fd89ae1696426564
+
